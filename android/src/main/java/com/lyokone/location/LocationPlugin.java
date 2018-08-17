@@ -244,6 +244,28 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
                     // Do not send error on events otherwise it will produce an error
                 }
             }
+        }).addOnFailureListener(activity, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                int statusCode = ((ApiException) e).getStatusCode();
+                switch (statusCode) {
+                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                        try {
+                            // Show the dialog by calling startResolutionForResult(), and check the
+                            // result in onActivityResult().
+                            ResolvableApiException rae = (ResolvableApiException) e;
+                            rae.startResolutionForResult(activity, REQUEST_CHECK_SETTINGS);
+                            getLastLocation(result);
+                        } catch (IntentSender.SendIntentException sie) {
+                            Log.i(METHOD_CHANNEL_NAME, "PendingIntent unable to execute request.");
+                        }
+                        break;
+                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                        String errorMessage = "Location settings are inadequate, and cannot be "
+                        + "fixed here. Fix in Settings.";
+                        Log.e(METHOD_CHANNEL_NAME, errorMessage);
+                }
+            }
         });
     }
 
