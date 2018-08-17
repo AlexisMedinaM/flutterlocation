@@ -255,6 +255,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
                             // result in onActivityResult().
                             ResolvableApiException rae = (ResolvableApiException) e;
                             rae.startResolutionForResult(activity, REQUEST_CHECK_SETTINGS);
+                            System.out.println("error get location");
                             getLastLocation(result);
                         } catch (IntentSender.SendIntentException sie) {
                             Log.i(METHOD_CHANNEL_NAME, "PendingIntent unable to execute request.");
