@@ -139,7 +139,9 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     loc.put("speed_accuracy", (double) location.getSpeedAccuracyMetersPerSecond());
                 }
-                events.success(loc);
+                if (events != null) {
+                    events.success(loc);
+                }
             }
         };
     }
@@ -217,6 +219,7 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
     }
 
     private void getLastLocation(final Result result) {
+
         mFusedLocationClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
             @Override
             public void onSuccess(Location location) {
@@ -235,7 +238,9 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
                         result.success(loc);
                         return;
                     }
-                    events.success(loc);
+                    if (events != null) {
+                        events.success(loc);
+                    }
                 } else {
                     if (result != null) {
                         result.error("ERROR", "Failed to get location.", null);
@@ -279,6 +284,12 @@ public class LocationPlugin implements MethodCallHandler, StreamHandler {
                 return;
             }
             getLastLocation(result);
+        } else if(call.method.equals("hasPermission")) {
+            if(checkPermissions()) {
+                result.success(1);
+            } else {
+                result.error("PERMISSION_DENIED", "The user explicitly denied the use of location services for this app or location services are currently disabled in Settings.", null);
+            }
         } else {
             result.notImplemented();
         }
